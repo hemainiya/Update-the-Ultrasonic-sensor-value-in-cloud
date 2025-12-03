@@ -69,11 +69,69 @@ Analytics capabilities enable organizations to derive meaningful insights from t
 
 # PROGRAM:
 
+```
+#include "ThingSpeak.h"
+#include <WiFi.h>
+
+char ssid[] = "iQOO Z7s 5G"; //SSID
+char pass[] = "12345678"; // Password
+
+const int trigger = 25;
+const int echo = 26;
+long T;
+float distanceCM;
+WiFiClient  client;
+
+unsigned long myChannelField = 2729936; // Channel ID
+const int ChannelField = 1; // Which channel to write data
+const char * myWriteAPIKey = "CEPIDT28430O7C66"; // Your write API Key
+
+void setup()
+{
+  Serial.begin(115200);
+  pinMode(trigger, OUTPUT);
+  pinMode(echo, INPUT);
+  WiFi.mode(WIFI_STA);
+  ThingSpeak.begin(client);
+}
+void loop()
+{
+  if (WiFi.status() != WL_CONNECTED)
+  {
+    Serial.print("Attempting to connect to SSID: ");
+    Serial.println(ssid);
+    while (WiFi.status() != WL_CONNECTED)
+    {
+      WiFi.begin(ssid, pass);
+      Serial.print(".");
+      delay(5000);
+    }
+    Serial.println("\nConnected.");
+  }
+  digitalWrite(trigger, LOW);
+  delay(1);
+  digitalWrite(trigger, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigger, LOW);
+  T = pulseIn(echo, HIGH);
+  distanceCM = T * 0.034; //340 m/s or 0.034 cm/microsec
+  distanceCM = distanceCM / 2;
+  Serial.print("Distance in cm: ");
+  Serial.println(distanceCM);
+  ThingSpeak.writeField(myChannelField, ChannelField, distanceCM, myWriteAPIKey);
+  delay(1000);
+}
+```
+
 # CIRCUIT DIAGRAM:
+![IMG_20241106_170616](https://github.com/user-attachments/assets/3cc3e4a3-4fd0-4a3b-b126-d2c0fb0c66d5)
+
 
 # OUTPUT:
+![image](https://github.com/user-attachments/assets/137cd0eb-6e4d-4f20-a524-4ae146582b54)
+
+
 
 # RESULT:
 
 Thus the Ultrasonic sensor value is uploaded in the Things mate using Arduino controller.
-
